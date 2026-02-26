@@ -1,0 +1,291 @@
+﻿:root {
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: #0f172a;
+  background:
+    radial-gradient(circle at 10% 10%, #dbeafe 0, transparent 30%),
+    radial-gradient(circle at 90% 20%, #cffafe 0, transparent 35%),
+    linear-gradient(160deg, #f8fafc, #eff6ff 55%, #ecfeff);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+.layout {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nav a {
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+
+.nav a.active {
+  color: #fff;
+  background: #0284c7;
+}
+
+.main {
+  display: grid;
+  gap: 12px;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+h2,
+h3 {
+  margin: 0 0 10px;
+}
+
+p {
+  margin: 6px 0;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.form {
+  display: grid;
+  gap: 10px;
+}
+
+input,
+button,
+.btn,
+textarea,
+select {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 9px 12px;
+  text-decoration: none;
+  font: inherit;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  background: #fff;
+}
+
+button,
+.btn {
+  cursor: pointer;
+  background: #0284c7;
+  color: #fff;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+}
+
+button:disabled,
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondary {
+  background: #334155;
+}
+
+.muted {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.error {
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.badge {
+  background: #e0f2fe;
+  color: #0c4a6e;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 12px;
+}
+
+.kpi {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+}
+
+.list-item {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.hero-card {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(14, 165, 233, 0.18), transparent 45%),
+    radial-gradient(circle at 90% 0, rgba(16, 185, 129, 0.16), transparent 45%),
+    #ffffff;
+}
+
+.page-head {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(14, 165, 233, 0.18), transparent 45%),
+    radial-gradient(circle at 90% 0, rgba(16, 185, 129, 0.16), transparent 45%),
+    #ffffff;
+}
+
+.hero-big {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+}
+
+.progress-wrap {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #dbeafe;
+  background: rgba(239, 246, 255, 0.7);
+}
+
+.progress-bar {
+  margin: 8px 0;
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: #dbeafe;
+  overflow: hidden;
+}
+
+.progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0ea5e9, #22c55e);
+}
+
+.invite-box {
+  margin-top: 10px;
+  border: 1px dashed #93c5fd;
+  border-radius: 12px;
+  padding: 12px;
+  background: #f8fbff;
+}
+
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 40;
+}
+
+.modal-panel {
+  width: min(680px, 100%);
+}
+
+.bottom-bar {
+  position: sticky;
+  bottom: 8px;
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(8px);
+}
+
+.bottom-bar .btn {
+  flex: 1;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1e3a8a;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #0284c7;
+  color: #fff;
+  border-color: #0284c7;
+}
+
+@media (max-width: 720px) {
+  .layout {
+    padding: 12px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

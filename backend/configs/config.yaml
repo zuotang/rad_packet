@@ -1,0 +1,9 @@
+server:
+  port: 8381
+mysql:
+  dsn: red_packet:red_packet@tcp(127.0.0.1:3306)/red_packet?charset=utf8mb4&parseTime=True&loc=Local
+jwt:
+  secret: change-me
+  ttl_hours: 168
+admin:
+  key: change-admin-key

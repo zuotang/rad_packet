@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>LuckyRain · 红包任务</title>
+  <style>
+    :root{
+      --bg:#05060F;
+      --panel:#0D1030;
+      --glass:rgba(255,255,255,.06);
+      --line:rgba(255,255,255,.10);
+      --text:#EAF0FF;
+      --muted:#AAB2E6;
+
+      --p1:#7C5CFF; /* purple */
+      --p2:#5CE1FF; /* cyan */
+      --p3:#35F2B3; /* green */
+      --p4:#FFCC66; /* gold */
+      --p5:#FF5C7A; /* pink */
+
+      --shadow: 0 18px 44px rgba(0,0,0,.55);
+      --r:22px;
+      --r2:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC","Microsoft Yahei", Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 520px at 22% -12%, rgba(124,92,255,.70), transparent 60%),
+        radial-gradient(900px 520px at 90% 5%, rgba(92,225,255,.40), transparent 55%),
+        radial-gradient(700px 700px at 50% 120%, rgba(53,242,179,.22), transparent 55%),
+        radial-gradient(700px 520px at 10% 80%, rgba(255,92,122,.12), transparent 60%),
+        var(--bg);
+      min-height:100vh;
+      overflow-x:hidden;
+      padding-bottom: 104px;
+    }
+    .stars{
+      position:fixed; inset:0;
+      pointer-events:none;
+      background-image:
+        radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,.18), transparent 55%),
+        radial-gradient(1px 1px at 70% 15%, rgba(255,255,255,.12), transparent 55%),
+        radial-gradient(2px 2px at 85% 55%, rgba(255,255,255,.14), transparent 55%),
+        radial-gradient(1px 1px at 25% 80%, rgba(255,255,255,.10), transparent 55%),
+        radial-gradient(2px 2px at 55% 65%, rgba(255,255,255,.16), transparent 55%);
+      opacity:.9;
+      filter: blur(.2px);
+      animation: drift 12s linear infinite;
+    }
+    @keyframes drift{0%{transform:translateY(0)}50%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+
+    .wrap{max-width:460px;margin:0 auto;padding:18px 16px 0; position:relative; z-index:1}
+    .row{display:flex;gap:12px;align-items:center}
+    .space{justify-content:space-between}
+
+    /* top */
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:10px;margin-top:10px;
+    }
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{
+      width:42px;height:42px;border-radius:16px;
+      background: linear-gradient(135deg, rgba(124,92,255,1), rgba(92,225,255,1));
+      box-shadow: 0 16px 30px rgba(124,92,255,.30);
+      position:relative; overflow:hidden;
+    }
+    .logo:after{
+      content:""; position:absolute; inset:-60%;
+      background: conic-gradient(from 180deg, rgba(255,255,255,.0), rgba(255,255,255,.35), rgba(255,255,255,.0));
+      animation: shine 3.2s linear infinite;
+    }
+    @keyframes shine{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+    .brand h1{margin:0;font-size:14px;letter-spacing:.3px}
+    .brand p{margin:0;color:var(--muted);font-size:12px}
+
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--line);
+      padding:8px 10px;border-radius:999px;
+      font-size:12px;color:var(--muted);
+      backdrop-filter: blur(8px);
+    }
+    .pill b{color:var(--text);font-weight:1000}
+
+    /* hero */
+    .hero{
+      margin-top:14px;
+      border-radius: var(--r);
+      border: 1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(600px 240px at 20% 0%, rgba(255,204,102,.22), transparent 55%),
+        radial-gradient(520px 260px at 85% 10%, rgba(92,225,255,.18), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+      padding:14px;
+    }
+    .hero:before{
+      content:""; position:absolute; inset:-60px auto auto -80px;
+      width:260px;height:260px;border-radius:50%;
+      background: radial-gradient(circle, rgba(124,92,255,.28), transparent 62%);
+    }
+    .hero:after{
+      content:""; position:absolute; inset:auto -120px -120px auto;
+      width:320px;height:320px;border-radius:50%;
+      background: radial-gradient(circle, rgba(53,242,179,.18), transparent 62%);
+    }
+    .big{
+      font-size:34px;
+      font-weight:1000;
+      letter-spacing:.2px;
+      line-height:1.05;
+      margin:2px 0 0;
+      text-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    .sub{color:var(--muted);font-size:12px;margin:8px 0 0;line-height:1.35}
+
+    .tag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 10px;border-radius:999px;
+      border:1px solid rgba(53,242,179,.18);
+      background: rgba(53,242,179,.08);
+      font-size:12px;
+      margin-top:10px;
+    }
+    .tag .dot{
+      width:8px;height:8px;border-radius:50%;
+      background: linear-gradient(135deg, var(--p3), var(--p2));
+      box-shadow: 0 0 14px rgba(92,225,255,.18);
+    }
+
+    /* boss/progress */
+    .boss{
+      margin-top:12px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      padding:12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .bossHead{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      margin-bottom:8px;
+    }
+    .bossName{
+      display:flex;align-items:center;gap:8px;
+      font-size:13px;font-weight:1000;
+    }
+    .bossName i{
+      width:20px;height:20px;border-radius:7px;
+      display:inline-flex;align-items:center;justify-content:center;
+      background: rgba(255,92,122,.18);
+      border:1px solid rgba(255,92,122,.20);
+      font-style:normal;
+    }
+    .hp{
+      height:14px;border-radius:999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+      position:relative;
+    }
+    .hp > b{
+      display:block;height:100%; width:35%;
+      background: linear-gradient(90deg, rgba(124,92,255,1), rgba(92,225,255,1), rgba(53,242,179,1));
+      border-radius:999px;
+      transition: width .35s ease;
+      filter: saturate(1.15);
+    }
+    .hp .glow{
+      position:absolute; top:50%;
+      width:160px; height:160px; border-radius:50%;
+      transform: translate(-50%,-50%);
+      background: radial-gradient(circle, rgba(255,255,255,.18), transparent 62%);
+      left:35%;
+      transition:left .35s ease;
+      pointer-events:none;
+    }
+    .bossFoot{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+    .stat{
+      flex: 1 1 120px;
+      padding:10px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      min-width:110px;
+    }
+    .stat .k{font-size:11px;color:var(--muted)}
+    .stat .v{font-size:14px;font-weight:1000;margin-top:2px}
+    .stat.ok{border-color: rgba(53,242,179,.18); background: rgba(53,242,179,.08)}
+    .stat.ok .v{color: var(--p3)}
+
+    /* cards */
+    .grid{margin-top:14px;display:grid;grid-template-columns:1fr;gap:12px}
+    .card{
+      border-radius: var(--r);
+      border: 1px solid rgba(255,255,255,.10);
+      background:
+        radial-gradient(420px 160px at 20% 0%, rgba(124,92,255,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      box-shadow: 0 14px 30px rgba(0,0,0,.28);
+      padding:14px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card h3{margin:0;font-size:14px}
+    .hint{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.35}
+
+    /* tasks */
+    .tasks{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+    .task{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:10px;
+      padding:12px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
+      position:relative;
+      overflow:hidden;
+    }
+    .task:before{
+      content:""; position:absolute; inset:-80px auto auto -80px;
+      width:200px;height:200px;border-radius:50%;
+      background: radial-gradient(circle, rgba(92,225,255,.12), transparent 62%);
+    }
+    .task .left{display:flex;align-items:center;gap:10px; position:relative; z-index:1}
+    .ico{
+      width:40px;height:40px;border-radius:16px;
+      background: rgba(124,92,255,.18);
+      border:1px solid rgba(124,92,255,.20);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:1000;
+      box-shadow: 0 14px 24px rgba(0,0,0,.22);
+    }
+    .meta{display:flex;flex-direction:column;gap:2px}
+    .title{font-size:13px;font-weight:1000}
+    .desc{font-size:12px;color:var(--muted)}
+
+    .btn{
+      border:0; cursor:pointer;
+      padding:10px 12px;
+      border-radius:16px;
+      font-weight:1000;
+      color: rgba(234,240,255,.95);
+      background: linear-gradient(135deg, rgba(124,92,255,1), rgba(92,225,255,1));
+      box-shadow: 0 16px 30px rgba(124,92,255,.22);
+      min-width:102px;
+      position:relative;
+      overflow:hidden;
+    }
+    .btn:after{
+      content:""; position:absolute; inset:-40% -60%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+      transform: rotate(15deg) translateX(-40%);
+      animation: sweep 2.6s ease-in-out infinite;
+    }
+    @keyframes sweep{0%,60%{transform: rotate(15deg) translateX(-60%)}100%{transform: rotate(15deg) translateX(60%)}}
+    .btn:active{transform: translateY(1px)}
+    .btn.gray{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow:none;
+      color: var(--muted);
+    }
+    .btn.good{
+      background: linear-gradient(135deg, rgba(53,242,179,1), rgba(92,225,255,1));
+      box-shadow: 0 16px 30px rgba(53,242,179,.14);
+      color:#071024;
+    }
+
+    /* invite */
+    .inviteBox{
+      margin-top:10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
+      padding:12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .inviteBox:before{
+      content:""; position:absolute; inset:-90px -90px auto auto;
+      width:240px;height:240px;border-radius:50%;
+      background: radial-gradient(circle, rgba(255,92,122,.14), transparent 62%);
+    }
+    .codeLine{
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+      margin-top:10px;
+      padding:10px;
+      border-radius:18px;
+      border: 1px dashed rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      position:relative;
+      z-index:1;
+    }
+    .codeLine b{font-size:16px;letter-spacing:1px}
+    .shareRow{display:flex; gap:10px; margin-top:10px; position:relative; z-index:1}
+    .shareRow .btn{flex:1; min-width:0}
+    .tiny{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.45; position:relative; z-index:1}
+
+    .sep{height:1px;background:rgba(255,255,255,.06);margin:12px 0}
+
+    /* bottom */
+    .bottom{
+      position:fixed; left:0; right:0; bottom:0;
+      padding:10px 12px calc(12px + env(safe-area-inset-bottom));
+      background: linear-gradient(180deg, rgba(5,6,15,.0), rgba(5,6,15,.80) 18%, rgba(5,6,15,.95));
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255,255,255,.06);
+      z-index:10;
+    }
+    .bottomInner{
+      max-width:460px; margin:0 auto;
+      display:flex; gap:10px; align-items:center;
+    }
+    .cta{
+      flex:1;
+      padding:15px 14px;
+      border-radius: 20px;
+      border:0;
+      cursor:pointer;
+      font-weight:1000;
+      font-size:14px;
+      background: linear-gradient(135deg, rgba(53,242,179,1), rgba(92,225,255,1));
+      color:#071024;
+      box-shadow: 0 18px 42px rgba(92,225,255,.14);
+      position:relative;
+      overflow:hidden;
+      animation: pulse 1.7s ease-in-out infinite;
+    }
+    @keyframes pulse{0%,100%{transform:translateY(0); filter:saturate(1)}50%{transform:translateY(-1px); filter:saturate(1.1)}}
+    .ghost{
+      width:56px;height:56px;border-radius:20px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color: rgba(234,240,255,.92);
+      cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:1000;
+      box-shadow: 0 18px 38px rgba(0,0,0,.25);
+    }
+
+    /* modal */
+    .modalMask{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.62);
+      display:none; align-items:flex-end;
+      padding:16px;
+      z-index:30;
+    }
+    .modal{
+      width:min(460px, 100%);
+      margin:0 auto;
+      border-radius: 24px;
+      background: rgba(13,16,48,.98);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding:14px 14px 10px;
+      display:flex; align-items:center; justify-content:space-between;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .modalHead h4{margin:0;font-size:14px}
+    .x{cursor:pointer; opacity:.9; font-weight:1000}
+    .modalBody{padding:14px}
+    .list{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:10px}
+    .li{
+      padding:12px;
+      border-radius:18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      display:flex; justify-content:space-between; gap:12px;
+    }
+    .li .l{display:flex;flex-direction:column;gap:3px}
+    .li .l b{font-size:13px}
+    .li .l span{font-size:12px;color:var(--muted)}
+    .amt{font-weight:1000}
+    .amt.pos{color:var(--p3)}
+    .amt.neg{color:var(--p5)}
+
+    /* toast + loot */
+    .toast{
+      position:fixed; left:50%; bottom:96px;
+      transform:translateX(-50%);
+      background: rgba(0,0,0,.60);
+      border: 1px solid rgba(255,255,255,.12);
+      color: rgba(234,240,255,.92);
+      padding:10px 12px;
+      border-radius: 16px;
+      font-size:12px;
+      display:none;
+      z-index:60;
+      backdrop-filter: blur(6px);
+    }
+    .floatLoot{
+      position:fixed;
+      left:50%;
+      top:55%;
+      transform:translate(-50%,-50%);
+      padding:10px 12px;
+      border-radius: 18px;
+      background: rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 22px 50px rgba(0,0,0,.45);
+      z-index:80;
+      pointer-events:none;
+      opacity:0;
+    }
+    .floatLoot.show{animation: loot 1.15s ease-out forwards;}
+    @keyframes loot{
+      0%{opacity:0; transform:translate(-50%,-30%) scale(.95)}
+      20%{opacity:1; transform:translate(-50%,-50%) scale(1)}
+      100%{opacity:0; transform:translate(-50%,-80%) scale(1.03)}
+    }
+  </style>
+</head>
+<body>
+  <div class="stars"></div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <h1>LuckyRain</h1>
+          <p>任务奖励 · 邀请助力 · 进度解锁</p>
+        </div>
+      </div>
+      <div class="pill">
+        <span>可提现</span>
+        <b id="cashable">$0.80</b>
+      </div>
+    </div>
+
+    <section class="hero" aria-label="hero">
+      <div class="row space">
+        <div>
+          <div style="font-size:12px;color:var(--muted);">你的待解锁奖励</div>
+          <div class="big"><span id="pending">$6.00</span></div>
+          <div class="sub">完成任务或邀请好友，逐步解锁。规则透明：只要达成条件就能提现。</div>
+          <div class="tag"><span class="dot"></span><span>当前档位：邀请 <b id="needInv">5</b> 人可解锁 100%</span></div>
+        </div>
+        <div class="pill" title="仅示意">
+          <span>今日进度</span>
+          <b id="invCount">2/5</b>
+        </div>
+      </div>
+
+      <!-- progress (boss bar style) -->
+      <div class="boss">
+        <div class="bossHead">
+          <div class="bossName"><i>⚡</i>解锁进度</div>
+          <div class="pill"><span>已解锁</span><b id="unlocked">$1.20</b></div>
+        </div>
+        <div class="hp" aria-label="progress">
+          <b id="bar"></b>
+          <span class="glow" id="glow"></span>
+        </div>
+        <div class="bossFoot">
+          <div class="stat ok">
+            <div class="k">已邀请</div>
+            <div class="v" id="sInv">2 人</div>
+          </div>
+          <div class="stat">
+            <div class="k">还差</div>
+            <div class="v" id="sLeft">3 人</div>
+          </div>
+          <div class="stat">
+            <div class="k">预计解锁</div>
+            <div class="v" id="sPct">40%</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card" aria-label="tasks">
+        <div class="row space">
+          <div>
+            <h3>任务中心</h3>
+            <div class="hint">先做“快任务”拿到第一笔可提现金额，提高信心。</div>
+          </div>
+          <button class="btn gray" id="openLedger">流水</button>
+        </div>
+
+        <div class="tasks" id="taskList"></div>
+      </section>
+
+      <section class="card" aria-label="invite">
+        <div class="row space">
+          <div>
+            <h3>邀请助力</h3>
+            <div class="hint">分享链接给好友，好友注册并完成一个任务即计入有效邀请。</div>
+          </div>
+          <div class="pill"><span>有效邀请</span><b id="validInv">2</b></div>
+        </div>
+
+        <div class="inviteBox">
+          <div class="row space" style="position:relative;z-index:1">
+            <div style="font-size:12px;color:var(--muted);">你的邀请码</div>
+            <div class="pill" title="示意：自动识别地区/语言"><span>地区</span><b>SEA</b></div>
+          </div>
+
+          <div class="codeLine">
+            <b id="code">8F3A9K</b>
+            <button class="btn gray" id="copyCode">复制</button>
+          </div>
+
+          <div class="shareRow">
+            <button class="btn" id="shareWA">WhatsApp 分享</button>
+            <button class="btn" id="shareFB">Facebook 分享</button>
+          </div>
+
+          <div class="tiny">
+            <b>提示：</b>为了防止刷量，以下情况不计入有效邀请：同设备重复注册 / 异常 IP / 未完成首个有效行为。<br/>
+            你可以在「流水」中查看每一笔奖励来源。
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-label="withdraw">
+        <div class="row space">
+          <div>
+            <h3>钱包 & 提现</h3>
+            <div class="hint">可提现金额达到门槛后可申请提现（示意：最低 $5）。</div>
+          </div>
+          <div class="pill"><span>余额</span><b id="bal">$0.80</b></div>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row" style="gap:10px;">
+          <button class="btn good" style="flex:1" id="btnWithdraw">申请提现</button>
+          <button class="btn gray" style="flex:1" id="btnRules">规则说明</button>
+        </div>
+        <div class="tiny" id="withdrawTip">当前还差 <b id="withdrawLeft">$4.20</b> 达到最低提现。</div>
+      </section>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="bottomInner">
+      <button class="ghost" id="btnSim">+1</button>
+      <button class="cta" id="btnCTA">一键分享，冲刺解锁</button>
+    </div>
+  </div>
+
+  <!-- Ledger Modal -->
+  <div class="modalMask" id="mask">
+    <div class="modal">
+      <div class="modalHead">
+        <h4>奖励流水（示意）</h4>
+        <div class="x" id="closeMask">✕</div>
+      </div>
+      <div class="modalBody">
+        <ul class="list" id="ledgerList"></ul>
+        <div class="hint">每笔奖励都可追溯来源事件（任务/邀请/活动）。生产环境建议服务端做幂等与对账。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="floatLoot" id="floatLoot"></div>
+
+  <script>
+    // ===== Demo State (replace with API later) =====
+    const state = {
+      inviteNeed: 5,
+      invited: 2,
+      validInvited: 2,
+      pending: 6.00,
+      unlocked: 1.20,
+      cashable: 0.80,
+      withdrawMin: 5.00,
+      code: "8F3A9K",
+      tasks: [
+        { id: 1, icon: "▶", title: "观看激励视频", desc: "完成一次观看，立得 $0.20", reward: 0.20, done: false, type:"ad" },
+        { id: 2, icon: "✓", title: "每日签到", desc: "签到一次，立得 $0.10", reward: 0.10, done: true, type:"checkin" },
+        { id: 3, icon: "⇩", title: "完成一个新手任务", desc: "完成任意一个任务，解锁进度 +10%", reward: 0.00, done: false, type:"boost" }
+      ],
+      ledger: [
+        { title: "新手奖励解锁", meta: "来源：活动", amount: +0.50 },
+        { title: "每日签到", meta: "来源：任务", amount: +0.10 },
+        { title: "邀请好友有效", meta: "来源：邀请", amount: +0.20 }
+      ]
+    };
+
+    // ===== Helpers =====
+    const $ = (id) => document.getElementById(id);
+    const fmt = (n) => "$" + n.toFixed(2);
+    const clamp = (v,min,max)=>Math.max(min, Math.min(max, v));
+
+    function toast(msg){
+      const el = $("toast");
+      el.textContent = msg;
+      el.style.display = "block";
+      clearTimeout(toast._t);
+      toast._t = setTimeout(()=>{ el.style.display="none"; }, 1600);
+    }
+
+    function showLoot(msg){
+      const el = $("floatLoot");
+      el.textContent = msg;
+      el.classList.remove("show");
+      void el.offsetWidth;
+      el.classList.add("show");
+    }
+
+    function renderProgress(){
+      $("needInv").textContent = state.inviteNeed;
+      $("invCount").textContent = `${state.invited}/${state.inviteNeed}`;
+      $("validInv").textContent = state.validInvited;
+
+      $("pending").textContent = fmt(state.pending);
+      $("unlocked").textContent = fmt(state.unlocked);
+      $("cashable").textContent = fmt(state.cashable);
+      $("bal").textContent = fmt(state.cashable);
+
+      const pct = clamp(state.invited / state.inviteNeed, 0, 1);
+      const w = (pct*100).toFixed(0) + "%";
+      $("bar").style.width = w;
+      $("glow").style.left = w;
+
+      $("sInv").textContent = `${state.invited} 人`;
+      $("sLeft").textContent = `${Math.max(0, state.inviteNeed - state.invited)} 人`;
+      $("sPct").textContent = `${(pct*100).toFixed(0)}%`;
+
+      const left = Math.max(0, state.withdrawMin - state.cashable);
+      $("withdrawLeft").textContent = fmt(left);
+
+      const tip = $("withdrawTip");
+      if(left <= 0){
+        tip.innerHTML = `已达到最低提现门槛：<b>${fmt(state.withdrawMin)}</b>（示意）`;
+      }else{
+        tip.innerHTML = `当前还差 <b id="withdrawLeft">${fmt(left)}</b> 达到最低提现。`;
+      }
+    }
+
+    function renderTasks(){
+      const box = $("taskList");
+      box.innerHTML = "";
+      state.tasks.forEach(t=>{
+        const div = document.createElement("div");
+        div.className = "task";
+        div.innerHTML = `
+          <div class="left">
+            <div class="ico">${t.icon}</div>
+            <div class="meta">
+              <div class="title">${t.title}</div>
+              <div class="desc">${t.desc}</div>
+            </div>
+          </div>
+          <button class="btn ${t.done ? "gray" : ""}" data-id="${t.id}">
+            ${t.done ? "已完成" : (t.reward>0 ? `领取 ${fmt(t.reward)}` : "去完成")}
+          </button>
+        `;
+        box.appendChild(div);
+      });
+
+      box.querySelectorAll("button[data-id]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = +btn.getAttribute("data-id");
+          const t = state.tasks.find(x=>x.id===id);
+          if(!t || t.done) return toast("该任务已完成");
+
+          t.done = true;
+
+          if(t.type === "boost"){
+            state.invited = Math.min(state.inviteNeed, state.invited + 1);
+            state.validInvited = Math.min(state.inviteNeed, state.validInvited + 1);
+            state.unlocked += 0.20;
+            state.cashable += 0.20;
+            state.ledger.unshift({ title:"完成新手任务", meta:"来源：任务", amount:+0.20 });
+            showLoot("掉落：$0.20（进度 +1）");
+            toast("任务完成：进度 +1");
+          }else{
+            state.unlocked += t.reward;
+            state.cashable += t.reward;
+            state.ledger.unshift({ title:t.title, meta:"来源：任务", amount:+t.reward });
+            showLoot(`掉落：${fmt(t.reward)} 现金`);
+            toast("领取成功：" + fmt(t.reward));
+          }
+
+          renderTasks();
+          renderProgress();
+        });
+      });
+    }
+
+    function renderLedger(){
+      const ul = $("ledgerList");
+      ul.innerHTML = "";
+      state.ledger.slice(0,12).forEach(it=>{
+        const li = document.createElement("li");
+        li.className = "li";
+        li.innerHTML = `
+          <div class="l">
+            <b>${it.title}</b>
+            <span>${it.meta}</span>
+          </div>
+          <div class="amt ${it.amount>=0 ? "pos":"neg"}">${it.amount>=0?"+":""}${fmt(Math.abs(it.amount))}</div>
+        `;
+        ul.appendChild(li);
+      });
+    }
+
+    function copy(text){
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(()=>toast("已复制")).catch(()=>fallbackCopy(text));
+      }else fallbackCopy(text);
+    }
+    function fallbackCopy(text){
+      const ta=document.createElement("textarea");
+      ta.value=text; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy");
+      document.body.removeChild(ta);
+      toast("已复制");
+    }
+
+    function share(platform){
+      const link = `https://h5.example.com/r/${state.code}`;
+      const msg = `我在 LuckyRain 做任务拿奖励～用我的邀请码 ${state.code} 注册：${link}`;
+      if(platform==="wa"){
+        location.href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      }else if(platform==="fb"){
+        location.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`;
+      }else{
+        copy(msg);
+      }
+    }
+
+    // ===== Wire events =====
+    $("copyCode").addEventListener("click", ()=> copy(state.code));
+    $("shareWA").addEventListener("click", ()=> share("wa"));
+    $("shareFB").addEventListener("click", ()=> share("fb"));
+    $("btnCTA").addEventListener("click", ()=> share("wa"));
+
+    $("openLedger").addEventListener("click", ()=>{
+      renderLedger();
+      $("mask").style.display = "flex";
+    });
+    $("closeMask").addEventListener("click", ()=> $("mask").style.display = "none");
+    $("mask").addEventListener("click", (e)=>{ if(e.target.id==="mask") $("mask").style.display="none"; });
+
+    $("btnRules").addEventListener("click", ()=>{
+      renderLedger();
+      $("mask").style.display = "flex";
+      toast("这里可替换成规则详情页");
+    });
+
+    $("btnWithdraw").addEventListener("click", ()=>{
+      const left = state.withdrawMin - state.cashable;
+      if(left > 0){
+        toast("未达门槛，还差 " + fmt(left));
+      }else{
+        toast("已提交提现申请（示意）");
+        state.ledger.unshift({ title:"提现申请", meta:"状态：pending（示意）", amount:-state.withdrawMin });
+        state.cashable = Math.max(0, state.cashable - state.withdrawMin);
+        renderProgress();
+      }
+    });
+
+    // simulate one more valid invite
+    $("btnSim").addEventListener("click", ()=>{
+      if(state.invited >= state.inviteNeed) return toast("已达到当前档位邀请上限");
+      state.invited += 1;
+      state.validInvited += 1;
+
+      state.unlocked += 0.30;
+      state.cashable += 0.20;
+      state.ledger.unshift({ title:"邀请好友有效", meta:"来源：邀请", amount:+0.20 });
+
+      showLoot("邀请成功：掉落 $0.20");
+      toast("有效邀请 +1");
+      renderProgress();
+    });
+
+    // ===== Init =====
+    $("code").textContent = state.code;
+    renderProgress();
+    renderTasks();
+  </script>
+</body>
+</html>
