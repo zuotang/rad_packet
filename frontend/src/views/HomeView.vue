@@ -7,6 +7,7 @@ import { useConfigStore } from "../stores/config";
 import { useReferralStore } from "../stores/referral";
 import { useRewardStore } from "../stores/reward";
 import { useWalletStore } from "../stores/wallet";
+import FirstSpinModal from "../components/FirstSpinModal.vue";
 
 const auth = useAuthStore();
 const config = useConfigStore();
@@ -24,6 +25,7 @@ const errorMessage = ref("");
 const hintMessage = ref("");
 const showInviteModal = ref(false);
 const showExitModal = ref(false);
+const showFirstSpin = ref(false);
 
 const lotteryStatus = ref({
   spin_count: 0,
@@ -35,6 +37,14 @@ const lotteryStatus = ref({
 });
 
 const withdrawRecords = ref([]);
+const mockWithdrawRecords = [
+  { id: "mock-1", amount: 60, status: "已提现", created_at: "2026-02-25" },
+  { id: "mock-2", amount: 60, status: "已提现", created_at: "2026-02-24" },
+  { id: "mock-3", amount: 60, status: "已提现", created_at: "2026-02-23" },
+];
+const displayWithdrawRecords = computed(() =>
+  withdrawRecords.value.length ? withdrawRecords.value : mockWithdrawRecords
+);
 
 const prizeSegments = [
   { label: "提现红包", type: "mid" },
@@ -100,6 +110,15 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
 }
 
+function showFirstSpinModal() {
+  showFirstSpin.value = true;
+  localStorage.setItem("first_spin_shown", "1");
+}
+
+function hideFirstSpinModal() {
+  showFirstSpin.value = false;
+}
+
 async function loadWithdrawRecords() {
   const res = await api.get("/withdraw/records?page=1&size=5");
   withdrawRecords.value = (res.data.items || []).map((item) => ({
@@ -136,6 +155,10 @@ async function loadAll() {
 
 async function spin() {
   if (spinning.value) return;
+  if (!localStorage.getItem("first_spin_shown")) {
+    showFirstSpinModal();
+    return;
+  }
   if (leftTimes.value <= 0) {
     toastText.value = "暂无抽奖次数，完成任务或邀请好友获取次数。";
     toastVisible.value = true;
@@ -334,7 +357,6 @@ onMounted(loadAll);
 
       <section v-if="loading" class="status-card">数据加载中…</section>
       <section v-if="errorMessage" class="status-card error">{{ errorMessage }}</section>
-      <section v-if="hintMessage" class="status-card hint">{{ hintMessage }}</section>
 
       <div class="panel">
         <div class="tabs">
@@ -363,8 +385,8 @@ onMounted(loadAll);
           </div>
 
           <div class="tabPage" :class="{ active: activeTab === 'show' }" id="tab-show">
-            <div v-if="!withdrawRecords.length" class="empty">暂无提现记录，继续抽奖累积金额。</div>
-            <div v-for="item in withdrawRecords" :key="item.id" class="receiptItem">
+            <div v-if="!displayWithdrawRecords.length" class="empty">暂无提现记录，继续抽奖累积金额。</div>
+            <div v-for="item in displayWithdrawRecords" :key="item.id" class="receiptItem">
               <div class="uavatar a1"></div>
               <div class="info">
                 <div class="row1">
@@ -393,6 +415,14 @@ onMounted(loadAll);
       </div>
     </div>
   </div>
+
+  <FirstSpinModal
+    :show="showFirstSpin"
+    title="太棒啦！你是首次参与提现"
+    subtitle="送你首次提现福利"
+    tip="点击任意位置继续"
+    @close="hideFirstSpinModal"
+  />
 
   <div v-if="showInviteModal" id="inviteModal" class="modalMask show" aria-hidden="false">
     <div class="inviteCard" role="dialog" aria-modal="true" aria-label="邀请好友">
@@ -480,7 +510,7 @@ onMounted(loadAll);
   position: sticky;
   top: 0;
   z-index: 20;
-  padding: 10px 14px 8px;
+  padding: 6px 10px 4px;
   background: linear-gradient(180deg, rgba(255, 70, 42, 0.98), rgba(255, 70, 42, 0.82));
   backdrop-filter: blur(8px);
 }
@@ -493,8 +523,8 @@ onMounted(loadAll);
 }
 
 .iconbtn {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 18px;
   display: grid;
   place-items: center;
@@ -517,11 +547,11 @@ onMounted(loadAll);
 }
 
 .banner {
-  margin-bottom: 10px;
+  margin-bottom: 4px;
   background: rgba(255, 255, 255, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 22px;
-  padding: 10px 12px;
+  padding: 6px 8px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -552,7 +582,7 @@ onMounted(loadAll);
 }
 
 .content {
-  padding: 12px 14px 0;
+  padding: 8px 12px 0;
 }
 
 .card {
@@ -560,7 +590,7 @@ onMounted(loadAll);
   color: #1f1f1f;
   border-radius: 18px;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.14);
-  padding: 14px 14px 12px;
+  padding: 8px 10px 8px;
   position: relative;
   overflow: hidden;
 }
@@ -582,7 +612,7 @@ onMounted(loadAll);
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
 
 .name {
@@ -619,9 +649,9 @@ onMounted(loadAll);
 }
 
 .headline {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 900;
-  margin: 6px 0 8px;
+  margin: 3px 0 4px;
 }
 
 .headline .hot {
@@ -629,12 +659,13 @@ onMounted(loadAll);
 }
 
 .bigmoney {
-  font-size: 64px;
+  font-size: 48px;
   font-weight: 1000;
   color: #ff2b2b;
   text-align: center;
-  margin: 6px 0 8px;
+  margin: 2px 0 4px;
   letter-spacing: 1px;
+  line-height: 1.1;
 }
 
 .bigmoney span {
@@ -653,7 +684,7 @@ onMounted(loadAll);
 }
 
 .stat {
-  padding: 10px 8px;
+  padding: 6px 6px;
   text-align: center;
 }
 
@@ -662,9 +693,9 @@ onMounted(loadAll);
 }
 
 .stat .k {
-  font-size: 13px;
+  font-size: 12px;
   color: #666;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
   font-weight: 700;
 }
 
@@ -685,12 +716,12 @@ onMounted(loadAll);
 }
 
 .wish {
-  margin: 10px 0 10px;
+  margin: 4px 0 4px;
   background: rgba(255, 255, 255, 0.22);
   border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 999px;
   text-align: center;
-  padding: 10px 12px;
+  padding: 4px 10px;
   font-weight: 900;
   color: #fff;
 }
@@ -700,19 +731,19 @@ onMounted(loadAll);
 }
 
 .wheelWrap {
-  margin-top: 6px;
+  margin-top: 4px;
   position: relative;
   display: flex;
   justify-content: center;
 }
 
 .wheelFrame {
-  width: 330px;
+  width: 300px;
   max-width: 92vw;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.18);
-  padding: 16px;
+  padding: 12px;
   box-shadow: 0 18px 30px rgba(0, 0, 0, 0.14);
   position: relative;
 }
@@ -747,7 +778,7 @@ onMounted(loadAll);
   left: 50%;
   top: 50%;
   height: 0;
-  transform: rotate(calc(var(--a) + 15deg)) translateY(-132px) translateX(-50%);
+  transform: rotate(calc(var(--a) + 15deg)) translateY(-122px) translateX(-50%);
   transform-origin: 0 0;
   pointer-events: none;
 }
@@ -774,8 +805,8 @@ onMounted(loadAll);
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 130px;
-  height: 130px;
+  width: 118px;
+  height: 118px;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 25%, #ff9b6a, #ff3b2f 60%, #e00000 100%);
   box-shadow: 0 16px 30px rgba(0, 0, 0, 0.25);
@@ -789,10 +820,10 @@ onMounted(loadAll);
 }
 
 .centerBtn .tag {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
   background: rgb(255 67 67);
-  padding: 6px 10px;
+  padding: 5px 8px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.25);
   margin-bottom: 6px;
@@ -802,14 +833,14 @@ onMounted(loadAll);
 }
 
 .centerBtn .main {
-  font-size: 34px;
+  font-size: 30px;
   font-weight: 1000;
   letter-spacing: 2px;
   margin-top: -2px;
 }
 
 .centerBtn .sub {
-  font-size: 12px;
+  font-size: 11px;
   opacity: 0.95;
   margin-top: 4px;
   font-weight: 800;
@@ -819,7 +850,7 @@ onMounted(loadAll);
   position: absolute;
   top: -2px;
   left: 50%;
-  top: calc(50% - 80px);
+  top: calc(50% - 74px);
   z-index: 1;
   transform: translateX(-50%);
   width: 0;
@@ -834,10 +865,10 @@ onMounted(loadAll);
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 60px;
+  bottom: 52px;
   width: min(92vw, 360px);
   background: rgba(0, 0, 0, 0.45);
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(6px);
@@ -855,7 +886,7 @@ onMounted(loadAll);
 }
 
 .bottomArea {
-  margin-top: 16px;
+  margin-top: 10px;
   padding: 0 14px;
   position: relative;
 }
@@ -864,10 +895,10 @@ onMounted(loadAll);
   width: 100%;
   border: none;
   border-radius: 999px;
-  padding: 16px 14px;
+  padding: 12px 12px;
   background: linear-gradient(180deg, #ff2f2f, #ff5c2e);
   color: #fff;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 1000;
   box-shadow: 0 14px 22px rgba(0, 0, 0, 0.16);
   cursor: pointer;
@@ -875,7 +906,7 @@ onMounted(loadAll);
 
 .countdown {
   text-align: center;
-  margin-top: 10px;
+  margin-top: 6px;
   color: rgba(255, 255, 255, 0.85);
   font-weight: 800;
   font-size: 14px;
@@ -884,7 +915,7 @@ onMounted(loadAll);
 .scan {
   position: absolute;
   right: 14px;
-  bottom: 74px;
+  bottom: 68px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -892,8 +923,8 @@ onMounted(loadAll);
 }
 
 .scan .btn {
-  width: 62px;
-  height: 62px;
+  width: 58px;
+  height: 58px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.28);
@@ -903,8 +934,8 @@ onMounted(loadAll);
 }
 
 .qr {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   background:
     linear-gradient(90deg, #fff 0 40%, transparent 40% 60%, #fff 60% 100%),
@@ -926,7 +957,7 @@ onMounted(loadAll);
 .mini {
   position: absolute;
   right: 10px;
-  top: 18px;
+  top: 12px;
   transform: translateY(0);
   z-index: 8;
   display: flex;
@@ -946,7 +977,7 @@ onMounted(loadAll);
 }
 
 .panel {
-  margin-top: 14px;
+  margin-top: 8px;
   background: #fff;
   border-radius: 16px;
   overflow: hidden;
@@ -961,8 +992,8 @@ onMounted(loadAll);
 
 .tab {
   flex: 1;
-  padding: 14px 10px;
-  font-size: 18px;
+  padding: 10px 8px;
+  font-size: 16px;
   font-weight: 1000;
   border: none;
   background: transparent;
@@ -1002,7 +1033,7 @@ onMounted(loadAll);
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 10px;
+  padding: 8px 8px;
   border-radius: 14px;
   background: #fffaf0;
   border: 1px solid rgba(0, 0, 0, 0.06);
@@ -1013,8 +1044,8 @@ onMounted(loadAll);
 }
 
 .uavatar {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   flex: 0 0 auto;
   border: 2px solid rgba(255, 255, 255, 0.8);
@@ -1309,8 +1340,8 @@ onMounted(loadAll);
 .handHint {
   position: absolute;
   right: 90px;
-  top: 50px;
-  font-size: 42px;
+  top: 46px;
+  font-size: 40px;
   line-height: 1;
   pointer-events: none;
   transform: rotate(-20deg);
@@ -1493,16 +1524,16 @@ onMounted(loadAll);
 
 @media (max-width: 360px) {
   .bigmoney {
-    font-size: 56px;
+    font-size: 42px;
   }
 
   .centerBtn {
-    width: 132px;
-    height: 132px;
+    width: 110px;
+    height: 110px;
   }
 
   .wheelFrame {
-    padding: 14px;
+    padding: 10px;
   }
 
   .handHint {
@@ -1512,4 +1543,6 @@ onMounted(loadAll);
   }
 }
 </style>
+
+
 

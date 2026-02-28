@@ -7,7 +7,7 @@
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; }
 
-.layout { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.layout { max-width: 1200px; margin: 0 auto; padding: 0px; }
 .main { display: grid; gap: 12px; }
 .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }

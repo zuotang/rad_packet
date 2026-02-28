@@ -23,7 +23,7 @@ a {
 .layout {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 0px;
 }
 
 .topbar {
@@ -281,7 +281,7 @@ button:disabled,
 
 @media (max-width: 720px) {
   .layout {
-    padding: 12px;
+    padding: 0px;
   }
 
   .topbar {
